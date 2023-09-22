@@ -61,7 +61,7 @@ export const getallorders = asyncHandler(async (req, res, next) => {
     return res.status(201).json({ message: `dooone`, orders });
   });
 export const createcheckoutsession=asyncHandler(async(req,res,next)=>{
-    const cart=await cartModel.findById(req.params.id)
+    const cart=await cartModel.findOne({_id:req.params.id})
     if (!cart) {
         return next(new Error(`Cart not found`, { cause: StatusCodes.NOT_FOUND }));
       }
@@ -90,4 +90,25 @@ export const createcheckoutsession=asyncHandler(async(req,res,next)=>{
 
     })
     return res.status(201).json({message:`success`,session})
+})
+export const createonlineorder=asyncHandler(async(request, response) => {
+    const sig = request.headers['stripe-signature'].toString();
+  
+    let event;
+  
+    try {
+      event = stripe.webhooks.constructEvent(request.body, sig, process.env.SIGSECRET);
+    } catch (err) {
+        return response.status(400).send(`Webhook Error: ${err.message}`);
+      ;
+    }
+  
+    // Handle the event
+    if(event.type== 'checkout.session.completed'){
+        const checkoutSessionCompleted = event.data.object;
+        console.log(`create order hereee ...........`)
+    }else{
+        console.log(`Unhandled event type ${event.type}`);
+    }
+    
 })

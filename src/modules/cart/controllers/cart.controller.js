@@ -58,7 +58,7 @@ export const removeproductfromCart=asyncHandler(async(req,res,next)=>{
     console.log(req.user)
     const{id}=req.params
     console.log(id)
-    const remove=await cartModel.findOneAndUpdate({user:req.user._id},{$pull:{cartitems:{_id:req.params.id}}},{new:true})
+    const remove=await cartModel.findOneAndUpdate({user:req.user._id,'cartitems._id': id},{$pull:{cartitems:{_id:req.params.id}}},{new:true})
     if(!remove){
         return next (new Error(`this item not found `,{cause:StatusCodes.NOT_FOUND})) 
     }
