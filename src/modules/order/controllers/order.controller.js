@@ -114,7 +114,7 @@ export const createonlineorder=asyncHandler(async(request, response) => {
     
 })
 
- async function cash(e,res){
+ async function cash(e){
     // 1)get cart 
     const cart=await cartModel.findById(e.client_reference_id)
     if (!cart) {
