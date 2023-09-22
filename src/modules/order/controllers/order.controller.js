@@ -120,7 +120,7 @@ export const createonlineorder=asyncHandler(async(request, response) => {
     if (!cart) {
         return next(new Error(`Cart not found`, { cause: StatusCodes.NOT_FOUND }));
       }
-      let user=await userModel.findOne({email:e.email})
+      let user=await userModel.findOne({email:e.customer_email})
       if(!user){
         return next(new Error(`email not found`, { cause: StatusCodes.NOT_FOUND }));
       }
