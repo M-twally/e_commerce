@@ -107,8 +107,48 @@ export const createonlineorder=asyncHandler(async(request, response) => {
     if(event.type== 'checkout.session.completed'){
         const checkoutSessionCompleted = event.data.object;
         console.log(`create order hereee ...........`)
+        cash(event.data.object)
     }else{
         console.log(`Unhandled event type ${event.type}`);
     }
     
 })
+
+ async function cash(e){
+    // 1)get cart 
+    const cart=await cartModel.findById(e.client_reference_id)
+    if (!cart) {
+        return next(new Error(`Cart not found`, { cause: StatusCodes.NOT_FOUND }));
+      }
+      let user=await userModel.findOne({email:e.email})
+      if(!user){
+        return next(new Error(`email not found`, { cause: StatusCodes.NOT_FOUND }));
+      }
+      // 2)create order
+    const order=new orderModel({
+        user:user.id,
+        cartitems:cart.cartitems,
+        orderTotalprice:e.amount_total/100,
+        shippingAddress:e.metadata.shippingAddress,
+        paymentmethod:`cash`,
+        isPayed:true,
+        paidAt:Date.now()
+        
+    })
+    await order.save()
+    console.log(order.shippingAddress)
+  if(!order){
+    return next (new Error(`No order  `),{cause:StatusCodes.NOT_FOUND})
+
+  }
+  // 3)decrement quantity product and increment sold
+  let options =cart.cartitems.map(item=>({
+    updateOne:{
+        filter:{ _id:item.product },
+        update:{$inc:{quantatity:-item.quantity,sold:item.quantity}}
+    }
+    }))
+        await productModel.bulkWrite(options)
+        await cartModel.findOneAndDelete({user:user._id})
+        return res.status(201).json({message:`dooone`,order})
+}
