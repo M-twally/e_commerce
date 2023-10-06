@@ -53,7 +53,6 @@ export const addtoCart=asyncHandler(
     return res.status(201).json({message:`add to cart`,cart:ExistCart})
     }
 )
-
 export const removeproductfromCart=asyncHandler(async(req,res,next)=>{
     console.log(req.user)
     const{id}=req.params
@@ -68,7 +67,6 @@ export const removeproductfromCart=asyncHandler(async(req,res,next)=>{
         }
     return res.status(StatusCodes.OK).json({message:`doone`,remove})
 })
-
 export const updateQuantity=asyncHandler(async(req,res,next)=>{
     let productExist=await productModel.findById(req.params.id).select(`price`)
         if(!productExist){
@@ -88,7 +86,6 @@ export const updateQuantity=asyncHandler(async(req,res,next)=>{
     
 
 })
-
 export const applyCoupon=asyncHandler(async(req,res,next)=>{
     let coupon= await couponModel.findOne({code:req.body.code,expires :{$gt:Date.now()}})
     let cart=await cartModel.findOne({user:req.user._id})
